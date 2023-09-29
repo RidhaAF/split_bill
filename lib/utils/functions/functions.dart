@@ -21,3 +21,30 @@ String countItemTotalPrice({required String qty, required String price}) {
 
   return (itemQty * itemPrice).toString();
 }
+
+String countSubtotal({required List items}) {
+  int subtotal = 0;
+
+  for (var item in items) {
+    final int itemTotalPrice = int.tryParse(item['item_total_price']) ?? 0;
+    subtotal += itemTotalPrice;
+  }
+
+  return subtotal.toString();
+}
+
+String countTotalPrice({
+  required String subtotal,
+  required String service,
+  required String tax,
+}) {
+  int totalPrice = 0;
+
+  final int billSubtotal = int.tryParse(subtotal) ?? 0;
+  final int billService = int.tryParse(service) ?? 0;
+  final int billTax = int.tryParse(tax) ?? 0;
+
+  totalPrice = billSubtotal + billService + billTax;
+
+  return totalPrice.toString();
+}
