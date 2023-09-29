@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:split_bill/utils/constants/constants.dart';
 
 class GradientBackground extends StatelessWidget {
-  const GradientBackground({super.key});
+  final Widget? child;
+  const GradientBackground({super.key, this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -10,6 +11,7 @@ class GradientBackground extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: japaneseGradient,
       ),
+      child: child,
     );
   }
 }

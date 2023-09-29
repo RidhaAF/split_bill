@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:split_bill/utils/constants/constants.dart';
 
@@ -6,6 +7,19 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     scaffoldBackgroundColor: secondaryColor,
+    primaryColor: primaryColor,
+    colorScheme: ColorScheme.light(
+      primary: primaryColor,
+      secondary: secondaryColor,
+      surface: secondaryColor,
+      background: secondaryColor,
+      error: redColor,
+      onPrimary: secondaryColor,
+      onSecondary: primaryColor,
+      onSurface: primaryColor,
+      onBackground: primaryColor,
+      onError: whiteColor,
+    ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: primaryColor,
       elevation: 0.0,
@@ -38,9 +52,14 @@ class AppTheme {
       titleTextStyle: TextStyle(
         color: secondaryColor,
         fontFamily: 'MaaxRounded',
-        fontSize: title3FS,
+        fontSize: bodyFS,
         fontWeight: semiBold,
       ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: primaryColor,
+      foregroundColor: secondaryColor,
+      enableFeedback: true,
     ),
     searchBarTheme: SearchBarThemeData(
       elevation: MaterialStateProperty.all(0),
@@ -118,6 +137,16 @@ class AppTheme {
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: bgColorLight2,
       shape: radiusTopLeftRight,
+    ),
+    cupertinoOverrideTheme: CupertinoThemeData(
+      primaryColor: primaryColor,
+      scaffoldBackgroundColor: secondaryColor,
+      textTheme: CupertinoTextThemeData(
+        primaryColor: primaryColor,
+        dateTimePickerTextStyle: const TextStyle(
+          fontFamily: 'MaaxRounded',
+        ),
+      ),
     ),
   );
 }
