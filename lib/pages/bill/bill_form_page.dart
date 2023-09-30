@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:split_bill/pages/bill/widgets/bill_item.dart';
 import 'package:split_bill/utils/constants/constants.dart';
 import 'package:split_bill/utils/functions/functions.dart';
 import 'package:split_bill/widgets/default_app_bar.dart';
@@ -14,29 +15,25 @@ class BillFormPage extends StatefulWidget {
 }
 
 class _BillFormPageState extends State<BillFormPage> {
-  final GlobalKey _formKey = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _serviceCtrl = TextEditingController();
   final TextEditingController _taxCtrl = TextEditingController();
   final FocusNode _titleFocus = FocusNode();
   final FocusNode _serviceFocus = FocusNode();
   final FocusNode _taxFocus = FocusNode();
-  final int _subtotal = 0;
-  final int _total = 0;
-  final List<Widget> _formItems = [];
+  final List<BillItem> _billItems = [];
 
-  void _initFormItem() {
-    _formItems.add(
-      _itemsForm(
-        uniqueKey: UniqueKey(),
-      ),
-    );
+  void _initBillItem() {
+    setState(() {
+      _billItems.add(BillItem());
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    _initFormItem();
+    _initBillItem();
   }
 
   @override
@@ -55,14 +52,16 @@ class _BillFormPageState extends State<BillFormPage> {
             _titleForm(),
             SizedBox(height: defaultMargin * 2),
             Column(
-              children: _formItems,
+              children: _billItems.map((item) => _itemsForm(item)).toList(),
             ),
             _addItemButton(),
             SizedBox(height: defaultMargin * 2),
             _listTileContent(
               title: 'Subtotal',
               trailing: Text(
-                moneyFormatter(_subtotal.toString()),
+                moneyFormatter(
+                  calculateSubtotal(_billItems).toString(),
+                ),
                 textScaleFactor: 1.0,
               ),
             ),
@@ -80,7 +79,13 @@ class _BillFormPageState extends State<BillFormPage> {
             _listTileContent(
               title: 'Total',
               trailing: Text(
-                moneyFormatter(_total.toString()),
+                moneyFormatter(
+                  calculateTotal(
+                    _billItems,
+                    service: _serviceCtrl.text,
+                    tax: _taxCtrl.text,
+                  ).toString(),
+                ),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: bold,
                     ),
@@ -99,6 +104,13 @@ class _BillFormPageState extends State<BillFormPage> {
       focusNode: _titleFocus,
       labelText: 'Title',
       hintText: 'Enter title',
+      textInputAction: TextInputAction.next,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Title is required';
+        }
+        return null;
+      },
     );
   }
 
@@ -106,11 +118,7 @@ class _BillFormPageState extends State<BillFormPage> {
     return TextButton(
       onPressed: () {
         setState(() {
-          _formItems.add(
-            _itemsForm(
-              uniqueKey: UniqueKey(),
-            ),
-          );
+          _billItems.add(BillItem());
         });
       },
       child: Row(
@@ -127,52 +135,23 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _itemsForm({required UniqueKey uniqueKey}) {
-    final TextEditingController itemNameCtrl = TextEditingController();
-    final TextEditingController itemPriceCtrl = TextEditingController();
-    final TextEditingController itemQtyCtrl = TextEditingController(text: '1');
-    final TextEditingController itemTotalPriceCtrl = TextEditingController();
-    final FocusNode itemNameFocus = FocusNode();
-    final FocusNode itemPriceFocus = FocusNode();
-    final FocusNode itemQtyFocus = FocusNode();
-    final FocusNode itemTotalPriceFocus = FocusNode();
-
+  Widget _itemsForm(BillItem item) {
     return Column(
-      key: uniqueKey,
       children: [
         Row(
           children: [
-            _itemNameForm(
-              controller: itemNameCtrl,
-              focusNode: itemNameFocus,
-            ),
-            if (_formItems.isNotEmpty)
-              _deleteItemButton(
-                uniqueKey: uniqueKey,
-              ),
+            _itemNameForm(item),
+            if (_billItems.length > 1) _deleteItemButton(item),
           ],
         ),
         SizedBox(height: defaultMargin / 2),
         Row(
           children: [
-            _itemPriceForm(
-              controller: itemPriceCtrl,
-              focusNode: itemPriceFocus,
-              itemQtyCtrl: itemQtyCtrl,
-              itemTotalPriceCtrl: itemTotalPriceCtrl,
-            ),
+            _itemPriceForm(item),
             SizedBox(width: defaultMargin / 2),
-            _itemQtyForm(
-              controller: itemQtyCtrl,
-              focusNode: itemQtyFocus,
-              itemPriceCtrl: itemPriceCtrl,
-              itemTotalPriceCtrl: itemTotalPriceCtrl,
-            ),
+            _itemQtyForm(item),
             SizedBox(width: defaultMargin / 2),
-            _itemTotalPriceForm(
-              controller: itemTotalPriceCtrl,
-              focusNode: itemTotalPriceFocus,
-            ),
+            _itemTotalPriceForm(item),
           ],
         ),
         SizedBox(height: defaultMargin / 2),
@@ -182,19 +161,16 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _itemNameForm({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-  }) {
+  Widget _itemNameForm(BillItem item) {
     return Expanded(
       child: DefaultTextField(
-        controller: controller,
-        focusNode: focusNode,
+        controller: item.nameCtrl,
+        focusNode: item.nameFocus,
         labelText: 'Item Name',
         hintText: 'Enter item name',
         textInputAction: TextInputAction.next,
         validator: (value) {
-          if (value!.isEmpty) {
+          if (value == null || value.isEmpty) {
             return 'Item name is required';
           }
           return null;
@@ -203,11 +179,11 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _deleteItemButton({required UniqueKey uniqueKey}) {
+  Widget _deleteItemButton(BillItem item) {
     return IconButton(
       onPressed: () {
         setState(() {
-          _formItems.removeWhere((e) => e.key == uniqueKey);
+          _billItems.remove(item);
         });
       },
       tooltip: 'Delete item',
@@ -216,39 +192,27 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _itemPriceForm({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required TextEditingController itemQtyCtrl,
-    required TextEditingController itemTotalPriceCtrl,
-  }) {
+  Widget _itemPriceForm(BillItem item) {
     return Expanded(
       flex: 5,
       child: DefaultTextField(
-        controller: controller,
-        focusNode: focusNode,
+        controller: item.priceCtrl,
+        focusNode: item.priceFocus,
         labelText: 'Price',
         hintText: 'Enter price',
         keyboardType: TextInputType.number,
         textInputAction: TextInputAction.next,
         onChanged: (value) {
-          final String qty = itemQtyCtrl.text;
-          final String price = value;
-
-          itemTotalPriceCtrl.text = moneyFormatter(
-            countItemTotalPrice(
-              qty: qty,
-              price: price,
-            ),
-          );
+          item.calculateTotalPrice();
+          setState(() {});
         },
         validator: (value) {
-          if (value!.isEmpty) {
+          if (value == null || value.isEmpty) {
             return 'Price is required';
-          } else if (int.tryParse(value) == 0) {
-            return 'Price must be greater than 0';
           } else if (int.tryParse(value) == null) {
             return 'Price must be a number';
+          } else if (int.tryParse(value)! <= 0) {
+            return 'Price must be greater than 0';
           }
           return null;
         },
@@ -256,40 +220,28 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _itemQtyForm({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required TextEditingController itemPriceCtrl,
-    required TextEditingController itemTotalPriceCtrl,
-  }) {
+  Widget _itemQtyForm(BillItem item) {
     return Expanded(
       flex: 2,
       child: DefaultTextField(
-        controller: controller,
-        focusNode: focusNode,
+        controller: item.qtyCtrl,
+        focusNode: item.qtyFocus,
         labelText: 'Qty',
         hintText: 'Qty',
         suffixText: 'X',
         keyboardType: TextInputType.number,
         textInputAction: TextInputAction.next,
         onChanged: (value) {
-          final String qty = value;
-          final String price = itemPriceCtrl.text;
-
-          itemTotalPriceCtrl.text = moneyFormatter(
-            countItemTotalPrice(
-              qty: qty,
-              price: price,
-            ),
-          );
+          item.calculateTotalPrice();
+          setState(() {});
         },
         validator: (value) {
-          if (value!.isEmpty) {
+          if (value == null || value.isEmpty) {
             return 'Qty is required';
-          } else if (int.tryParse(value) == 0) {
-            return 'Qty must be greater than 0';
           } else if (int.tryParse(value) == null) {
             return 'Qty must be a number';
+          } else if (int.tryParse(value)! <= 0) {
+            return 'Qty must be greater than 0';
           }
           return null;
         },
@@ -297,31 +249,15 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _itemTotalPriceForm({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-  }) {
+  Widget _itemTotalPriceForm(BillItem item) {
     return Expanded(
       flex: 5,
-      child: DefaultTextField(
-        controller: controller,
-        focusNode: focusNode,
-        labelText: 'Total Price',
-        hintText: 'Total price',
-        keyboardType: TextInputType.number,
-        textInputAction: TextInputAction.done,
-        readOnly: true,
+      child: Text(
+        moneyFormatter(
+          item.calculateTotalPrice().toString(),
+        ),
         textAlign: TextAlign.end,
-        validator: (value) {
-          if (value!.isEmpty) {
-            return 'Total price is required';
-          } else if (int.tryParse(value) == 0) {
-            return 'Total price must be greater than 0';
-          } else if (int.tryParse(value) == null) {
-            return 'Total price must be a number';
-          }
-          return null;
-        },
+        textScaleFactor: 1.0,
       ),
     );
   }
@@ -345,9 +281,18 @@ class _BillFormPageState extends State<BillFormPage> {
         labelText: 'Service',
         hintText: 'Enter service',
         keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.next,
         textAlign: TextAlign.end,
+        onChanged: (value) {
+          calculateTotal(
+            _billItems,
+            service: value,
+            tax: _taxCtrl.text,
+          );
+          setState(() {});
+        },
         validator: (value) {
-          if (int.tryParse(value) == null) {
+          if (value == null || int.tryParse(value) == null) {
             return 'Service must be a number';
           }
           return null;
@@ -365,10 +310,18 @@ class _BillFormPageState extends State<BillFormPage> {
         labelText: 'Tax',
         hintText: 'Enter tax',
         keyboardType: TextInputType.number,
-        textInputAction: TextInputAction.next,
+        textInputAction: TextInputAction.done,
         textAlign: TextAlign.end,
+        onChanged: (value) {
+          calculateTotal(
+            _billItems,
+            service: _serviceCtrl.text,
+            tax: value,
+          );
+          setState(() {});
+        },
         validator: (value) {
-          if (int.tryParse(value) == null) {
+          if (value == null || int.tryParse(value) == null) {
             return 'Tax must be a number';
           }
           return null;

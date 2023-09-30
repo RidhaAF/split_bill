@@ -24,12 +24,12 @@ class _MainPageState extends State<MainPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
-            label: '',
+            label: 'Home',
             tooltip: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_rounded),
-            label: '',
+            label: 'Setting',
             tooltip: 'Setting',
           ),
         ],

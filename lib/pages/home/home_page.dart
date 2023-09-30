@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage> {
       body: const GradientBackground(),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/bill/form'),
+        tooltip: 'Add bill',
         child: const Icon(Icons.add_rounded),
       ),
     );

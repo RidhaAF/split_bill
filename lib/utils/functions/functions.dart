@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:split_bill/pages/bill/widgets/bill_item.dart';
 
 String dateTimeFormatter(DateTime dateTime) {
   return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
@@ -15,36 +16,23 @@ String moneyFormatter(String money) {
   return formatter.format(moneyInt);
 }
 
-String countItemTotalPrice({required String qty, required String price}) {
-  final int itemQty = int.tryParse(qty) ?? 1;
-  final int itemPrice = int.tryParse(price) ?? 0;
-
-  return (itemQty * itemPrice).toString();
-}
-
-String countSubtotal({required List items}) {
+int calculateSubtotal(List<BillItem> billItems) {
   int subtotal = 0;
-
-  for (var item in items) {
-    final int itemTotalPrice = int.tryParse(item['item_total_price']) ?? 0;
-    subtotal += itemTotalPrice;
+  for (var item in billItems) {
+    subtotal += item.calculateTotalPrice();
   }
 
-  return subtotal.toString();
+  return subtotal;
 }
 
-String countTotalPrice({
-  required String subtotal,
+int calculateTotal(
+  List<BillItem> billItems, {
   required String service,
   required String tax,
 }) {
-  int totalPrice = 0;
+  int subtotal = calculateSubtotal(billItems);
+  int itemService = int.tryParse(service) ?? 0;
+  int itemTax = int.tryParse(tax) ?? 0;
 
-  final int billSubtotal = int.tryParse(subtotal) ?? 0;
-  final int billService = int.tryParse(service) ?? 0;
-  final int billTax = int.tryParse(tax) ?? 0;
-
-  totalPrice = billSubtotal + billService + billTax;
-
-  return totalPrice.toString();
+  return subtotal + itemService + itemTax;
 }
