@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:split_bill/utils/functions/functions.dart';
 
 class BillItem {
   TextEditingController nameCtrl = TextEditingController();
@@ -11,8 +12,8 @@ class BillItem {
   FocusNode totalPriceFocus = FocusNode();
 
   int calculateTotalPrice() {
-    int price = int.tryParse(priceCtrl.text) ?? 0;
-    int qty = int.tryParse(qtyCtrl.text) ?? 1;
+    int price = int.tryParse(digitOnly(priceCtrl.text)) ?? 0;
+    int qty = int.tryParse(digitOnly(qtyCtrl.text)) ?? 1;
     int total = price * qty;
     totalPriceCtrl.text = total.toString();
 

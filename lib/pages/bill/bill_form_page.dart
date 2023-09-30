@@ -223,6 +223,7 @@ class _BillFormPageState extends State<BillFormPage> {
         hintText: 'Enter price',
         keyboardType: TextInputType.number,
         textInputAction: TextInputAction.next,
+        inputFormatters: digitsOnlyCurrencyInputFormatters(),
         onChanged: (value) {
           item.calculateTotalPrice();
           setState(() {});
@@ -230,9 +231,9 @@ class _BillFormPageState extends State<BillFormPage> {
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Price is required';
-          } else if (int.tryParse(value) == null) {
+          } else if (int.tryParse(digitOnly(value)) == null) {
             return 'Price must be a number';
-          } else if (int.tryParse(value)! <= 0) {
+          } else if (int.tryParse(digitOnly(value))! <= 0) {
             return 'Price must be greater than 0';
           }
           return null;
@@ -304,6 +305,7 @@ class _BillFormPageState extends State<BillFormPage> {
         keyboardType: TextInputType.number,
         textInputAction: TextInputAction.next,
         textAlign: TextAlign.end,
+        inputFormatters: digitsOnlyCurrencyInputFormatters(),
         onChanged: (value) {
           calculateTotal(
             _billItems,
@@ -313,7 +315,7 @@ class _BillFormPageState extends State<BillFormPage> {
           setState(() {});
         },
         validator: (value) {
-          if (value == null || int.tryParse(value) == null) {
+          if (value == null || int.tryParse(digitOnly(value)) == null) {
             return 'Service must be a number';
           }
           return null;
@@ -333,6 +335,7 @@ class _BillFormPageState extends State<BillFormPage> {
         keyboardType: TextInputType.number,
         textInputAction: TextInputAction.done,
         textAlign: TextAlign.end,
+        inputFormatters: digitsOnlyCurrencyInputFormatters(),
         onChanged: (value) {
           calculateTotal(
             _billItems,
@@ -342,7 +345,7 @@ class _BillFormPageState extends State<BillFormPage> {
           setState(() {});
         },
         validator: (value) {
-          if (value == null || int.tryParse(value) == null) {
+          if (value == null || int.tryParse(digitOnly(value)) == null) {
             return 'Tax must be a number';
           }
           return null;
