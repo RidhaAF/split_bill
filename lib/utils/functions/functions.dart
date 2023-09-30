@@ -1,5 +1,7 @@
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:split_bill/pages/bill/widgets/bill_item.dart';
+import 'package:split_bill/utils/functions/currency_input_formatter.dart';
 
 String dateTimeFormatter(DateTime dateTime) {
   return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
@@ -31,8 +33,19 @@ int calculateTotal(
   required String tax,
 }) {
   int subtotal = calculateSubtotal(billItems);
-  int itemService = int.tryParse(service) ?? 0;
-  int itemTax = int.tryParse(tax) ?? 0;
+  int itemService = int.tryParse(digitOnly(service)) ?? 0;
+  int itemTax = int.tryParse(digitOnly(tax)) ?? 0;
 
   return subtotal + itemService + itemTax;
+}
+
+String digitOnly(String text) {
+  return text.replaceAll(RegExp(r'[^0-9]'), '');
+}
+
+List<TextInputFormatter>? digitsOnlyCurrencyInputFormatters() {
+  return [
+    FilteringTextInputFormatter.digitsOnly,
+    CurrencyInputFormatter(),
+  ];
 }

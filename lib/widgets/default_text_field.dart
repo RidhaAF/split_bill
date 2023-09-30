@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:split_bill/utils/constants/constants.dart';
 
 class DefaultTextField extends StatelessWidget {
@@ -32,6 +33,7 @@ class DefaultTextField extends StatelessWidget {
   final bool? enabled;
   final Color? cursorColor;
   final Iterable<String>? autofillHints;
+  final List<TextInputFormatter>? inputFormatters;
   final Function? onChanged;
   final Function? onTap;
   final Function? onFieldSubmitted;
@@ -68,6 +70,7 @@ class DefaultTextField extends StatelessWidget {
     this.enabled,
     this.cursorColor,
     this.autofillHints,
+    this.inputFormatters,
     this.onChanged,
     this.onTap,
     this.onFieldSubmitted,
@@ -137,6 +140,7 @@ class DefaultTextField extends StatelessWidget {
       enabled: enabled ?? true,
       cursorColor: cursorColor ?? primaryColor,
       autofillHints: autofillHints,
+      inputFormatters: inputFormatters,
       onChanged: (value) => onChanged != null ? onChanged!(value) : null,
       onTap: () => onTap != null ? onTap!() : null,
       onFieldSubmitted: (value) =>
