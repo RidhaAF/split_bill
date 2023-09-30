@@ -3,8 +3,10 @@ import 'package:split_bill/pages/bill/widgets/bill_item.dart';
 import 'package:split_bill/utils/constants/constants.dart';
 import 'package:split_bill/utils/functions/functions.dart';
 import 'package:split_bill/widgets/default_app_bar.dart';
+import 'package:split_bill/widgets/default_button.dart';
 import 'package:split_bill/widgets/default_date_time_picker.dart';
 import 'package:split_bill/widgets/default_list_tile.dart';
+import 'package:split_bill/widgets/default_snack_bar.dart';
 import 'package:split_bill/widgets/default_text_field.dart';
 
 class BillFormPage extends StatefulWidget {
@@ -28,6 +30,20 @@ class _BillFormPageState extends State<BillFormPage> {
     setState(() {
       _billItems.add(BillItem());
     });
+  }
+
+  void _handleConfirmButton() {
+    if (_serviceCtrl.text.isEmpty) {
+      _serviceCtrl.text = '0';
+    }
+    if (_taxCtrl.text.isEmpty) {
+      _taxCtrl.text = '0';
+    }
+
+    if (_formKey.currentState!.validate()) {
+    } else {
+      DefaultSnackBar.show(context, 'Please fill all required fields');
+    }
   }
 
   @override
@@ -91,6 +107,11 @@ class _BillFormPageState extends State<BillFormPage> {
                     ),
                 textScaleFactor: 1.0,
               ),
+            ),
+            SizedBox(height: defaultMargin),
+            DefaultButton(
+              onPressed: () => _handleConfirmButton(),
+              text: 'Confirm',
             ),
           ],
         ),

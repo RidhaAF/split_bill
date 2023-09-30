@@ -106,7 +106,10 @@ class AppTheme {
         ),
         padding: MaterialStateProperty.all(EdgeInsets.zero),
         backgroundColor: MaterialStateProperty.all(primaryColor),
-        foregroundColor: MaterialStateProperty.all(whiteColor),
+        foregroundColor: MaterialStateProperty.all(secondaryColor),
+        overlayColor: MaterialStateProperty.all(
+          secondaryColor.withOpacity(0.1),
+        ),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(defaultRadius),
