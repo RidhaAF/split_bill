@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:split_bill/pages/bill/widgets/friend_avatar.dart';
+import 'package:split_bill/pages/bill/widgets/friend_circle_avatar.dart';
 import 'package:split_bill/utils/constants/constants.dart';
 import 'package:split_bill/utils/constants/strings.dart';
 import 'package:split_bill/widgets/default_app_bar.dart';
@@ -7,7 +9,11 @@ import 'package:split_bill/widgets/default_button.dart';
 import 'package:split_bill/widgets/default_snack_bar.dart';
 
 class ChooseFriendsPage extends StatefulWidget {
-  const ChooseFriendsPage({Key? key}) : super(key: key);
+  final Map summary;
+  const ChooseFriendsPage({
+    Key? key,
+    required this.summary,
+  }) : super(key: key);
 
   @override
   State<ChooseFriendsPage> createState() => _ChooseFriendsPageState();
@@ -38,7 +44,13 @@ class _ChooseFriendsPageState extends State<ChooseFriendsPage> {
     if (_friends.isEmpty) {
       DefaultSnackBar.show(context, 'Please add at least one friend');
     } else if (_formKey.currentState!.validate()) {
-      // TODO: Add friends to the bill
+      context.push(
+        '/bill/add-item',
+        extra: {
+          'summary': widget.summary,
+          'friends': _friends,
+        },
+      );
     } else {
       DefaultSnackBar.show(context, requiredFields);
     }
@@ -73,64 +85,8 @@ class _ChooseFriendsPageState extends State<ChooseFriendsPage> {
     );
   }
 
-  Widget _friendAvatar({
-    FriendAvatar? friend,
-    Widget? child,
-    String? name,
-    bool isFriend = true,
-  }) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 24,
-          child: child ?? const Icon(Icons.person_rounded),
-        ),
-        SizedBox(height: defaultMargin / 4),
-        isFriend
-            ? SizedBox(
-                width: 48,
-                child: _friendNameForm(friend ?? FriendAvatar()),
-              )
-            : Text(
-                name ?? 'You',
-                textScaleFactor: 1.0,
-              ),
-      ],
-    );
-  }
-
-  Widget _friendNameForm(FriendAvatar friend) {
-    return TextFormField(
-      controller: friend.nameCtrl,
-      focusNode: friend.nameFocus,
-      decoration: const InputDecoration(
-        isDense: true,
-        contentPadding: EdgeInsets.zero,
-        errorBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
-        focusedErrorBorder: InputBorder.none,
-        disabledBorder: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        border: InputBorder.none,
-      ),
-      style: TextStyle(
-        fontSize: subheadlineFS,
-      ),
-      textAlign: TextAlign.center,
-      autofocus: true,
-      cursorHeight: 16,
-      scrollPadding: EdgeInsets.zero,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Name...';
-        }
-        return null;
-      },
-    );
-  }
-
   Widget _myAvatar() {
-    return _friendAvatar(
+    return const FriendCircleAvatar(
       name: 'You',
       isFriend: false,
     );
@@ -144,7 +100,7 @@ class _ChooseFriendsPageState extends State<ChooseFriendsPage> {
               padding: EdgeInsets.only(right: defaultMargin / 2),
               child: Stack(
                 children: [
-                  _friendAvatar(friend: friend),
+                  FriendCircleAvatar(friend: friend),
                   _closeButton(friend: friend),
                 ],
               ),
@@ -182,10 +138,10 @@ class _ChooseFriendsPageState extends State<ChooseFriendsPage> {
   Widget _addFriendButton() {
     return GestureDetector(
       onTap: () => _addFriend(),
-      child: _friendAvatar(
+      child: const FriendCircleAvatar(
         name: 'Add',
         isFriend: false,
-        child: const Icon(Icons.add_rounded),
+        child: Icon(Icons.add_rounded),
       ),
     );
   }

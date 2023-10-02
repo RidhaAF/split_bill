@@ -20,6 +20,7 @@ class BillFormPage extends StatefulWidget {
 
 class _BillFormPageState extends State<BillFormPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _dateTimeCtrl = TextEditingController();
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _serviceCtrl = TextEditingController();
   final TextEditingController _taxCtrl = TextEditingController();
@@ -27,6 +28,8 @@ class _BillFormPageState extends State<BillFormPage> {
   final FocusNode _serviceFocus = FocusNode();
   final FocusNode _taxFocus = FocusNode();
   final List<BillItem> _billItems = [];
+  int _subtotal = 0;
+  int _total = 0;
 
   void _addBillItem() {
     setState(() {
@@ -53,7 +56,20 @@ class _BillFormPageState extends State<BillFormPage> {
     }
 
     if (_formKey.currentState!.validate()) {
-      context.push('/bill/choose-friends');
+      context.push(
+        '/bill/choose-friends',
+        extra: {
+          'summary': {
+            'date': _dateTimeCtrl.text,
+            'title': _titleCtrl.text,
+            'items': _billItems,
+            'subtotal': _subtotal.toString(),
+            'service': digitOnly(_serviceCtrl.text),
+            'tax': digitOnly(_taxCtrl.text),
+            'total': _total.toString(),
+          }
+        },
+      );
     } else {
       DefaultSnackBar.show(context, requiredFields);
     }
@@ -67,6 +83,13 @@ class _BillFormPageState extends State<BillFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    _subtotal = calculateSubtotal(_billItems);
+    _total = calculateTotal(
+      _billItems,
+      service: _serviceCtrl.text,
+      tax: _taxCtrl.text,
+    );
+
     return Scaffold(
       appBar: const DefaultAppBar(
         title: 'Split Bill',
@@ -76,7 +99,7 @@ class _BillFormPageState extends State<BillFormPage> {
         child: ListView(
           padding: EdgeInsets.all(defaultMargin),
           children: [
-            const DefaultDateTimePicker(),
+            DefaultDateTimePicker(dateTimeCtrl: _dateTimeCtrl),
             SizedBox(height: defaultMargin / 2),
             _titleForm(),
             SizedBox(height: defaultMargin * 2),
@@ -89,7 +112,7 @@ class _BillFormPageState extends State<BillFormPage> {
               title: 'Subtotal',
               trailing: Text(
                 moneyFormatter(
-                  calculateSubtotal(_billItems).toString(),
+                  _subtotal.toString(),
                 ),
                 textScaleFactor: 1.0,
               ),
@@ -109,11 +132,7 @@ class _BillFormPageState extends State<BillFormPage> {
               title: 'Total',
               trailing: Text(
                 moneyFormatter(
-                  calculateTotal(
-                    _billItems,
-                    service: _serviceCtrl.text,
-                    tax: _taxCtrl.text,
-                  ).toString(),
+                  _total.toString(),
                 ),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: bold,

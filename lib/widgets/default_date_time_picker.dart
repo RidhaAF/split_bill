@@ -4,14 +4,17 @@ import 'package:split_bill/utils/functions/functions.dart';
 import 'package:split_bill/widgets/default_text_field.dart';
 
 class DefaultDateTimePicker extends StatefulWidget {
-  const DefaultDateTimePicker({super.key});
+  final TextEditingController dateTimeCtrl;
+  const DefaultDateTimePicker({
+    super.key,
+    required this.dateTimeCtrl,
+  });
 
   @override
   State<DefaultDateTimePicker> createState() => _DefaultDateTimePickerState();
 }
 
 class _DefaultDateTimePickerState extends State<DefaultDateTimePicker> {
-  final TextEditingController _dateTimeCtrl = TextEditingController();
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
 
@@ -23,7 +26,7 @@ class _DefaultDateTimePickerState extends State<DefaultDateTimePicker> {
     if (pickedDate != null && pickedDate != selectedDate) {
       setState(() {
         selectedDate = pickedDate;
-        _dateTimeCtrl.text = dateTimeFormatter(selectedDate);
+        widget.dateTimeCtrl.text = dateTimeFormatter(selectedDate);
       });
     }
   }
@@ -31,13 +34,13 @@ class _DefaultDateTimePickerState extends State<DefaultDateTimePicker> {
   @override
   void initState() {
     super.initState();
-    _dateTimeCtrl.text = dateTimeFormatter(selectedDate);
+    widget.dateTimeCtrl.text = dateTimeFormatter(selectedDate);
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTextField(
-      controller: _dateTimeCtrl,
+      controller: widget.dateTimeCtrl,
       labelText: 'Date & Time',
       hintText: 'Pick a date and time',
       readOnly: true,
