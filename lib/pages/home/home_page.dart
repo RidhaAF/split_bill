@@ -5,7 +5,7 @@ import 'package:split_bill/widgets/default_app_bar.dart';
 import 'package:split_bill/widgets/gradient_background.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
