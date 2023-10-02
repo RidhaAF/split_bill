@@ -20,8 +20,8 @@ class DefaultButton extends StatelessWidget {
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
-        onPressed: () => onPressed != null ? onPressed!() : null,
-        onLongPress: () => onLongPress != null ? onLongPress!() : null,
+        onPressed: onPressed != null ? () => onPressed!() : null,
+        onLongPress: onLongPress != null ? () => onLongPress!() : null,
         child: isLoading == true
             ? const DefaultLoadingIndicator()
             : Text(

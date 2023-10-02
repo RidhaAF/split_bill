@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:split_bill/pages/bill/widgets/bill_item.dart';
 import 'package:split_bill/utils/constants/constants.dart';
+import 'package:split_bill/utils/constants/strings.dart';
 import 'package:split_bill/utils/functions/functions.dart';
 import 'package:split_bill/widgets/default_app_bar.dart';
 import 'package:split_bill/widgets/default_button.dart';
@@ -10,7 +12,7 @@ import 'package:split_bill/widgets/default_snack_bar.dart';
 import 'package:split_bill/widgets/default_text_field.dart';
 
 class BillFormPage extends StatefulWidget {
-  const BillFormPage({super.key});
+  const BillFormPage({Key? key}) : super(key: key);
 
   @override
   State<BillFormPage> createState() => _BillFormPageState();
@@ -26,10 +28,20 @@ class _BillFormPageState extends State<BillFormPage> {
   final FocusNode _taxFocus = FocusNode();
   final List<BillItem> _billItems = [];
 
-  void _initBillItem() {
+  void _addBillItem() {
     setState(() {
       _billItems.add(BillItem());
     });
+  }
+
+  void _removeBillItem(BillItem item) {
+    setState(() {
+      _billItems.remove(item);
+    });
+  }
+
+  void _initBillItem() {
+    _addBillItem();
   }
 
   void _handleConfirmButton() {
@@ -41,8 +53,9 @@ class _BillFormPageState extends State<BillFormPage> {
     }
 
     if (_formKey.currentState!.validate()) {
+      context.push('/bill/choose-friends');
     } else {
-      DefaultSnackBar.show(context, 'Please fill all required fields');
+      DefaultSnackBar.show(context, requiredFields);
     }
   }
 
@@ -137,11 +150,7 @@ class _BillFormPageState extends State<BillFormPage> {
 
   Widget _addItemButton() {
     return TextButton(
-      onPressed: () {
-        setState(() {
-          _billItems.add(BillItem());
-        });
-      },
+      onPressed: () => _addBillItem(),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -162,7 +171,7 @@ class _BillFormPageState extends State<BillFormPage> {
         Row(
           children: [
             _itemNameForm(item),
-            if (_billItems.length > 1) _deleteItemButton(item),
+            if (_billItems.length > 1) _removeItemButton(item),
           ],
         ),
         SizedBox(height: defaultMargin / 2),
@@ -200,16 +209,12 @@ class _BillFormPageState extends State<BillFormPage> {
     );
   }
 
-  Widget _deleteItemButton(BillItem item) {
+  Widget _removeItemButton(BillItem item) {
     return IconButton(
-      onPressed: () {
-        setState(() {
-          _billItems.remove(item);
-        });
-      },
-      tooltip: 'Delete item',
+      onPressed: () => _removeBillItem(item),
+      tooltip: 'Remove item',
       enableFeedback: true,
-      icon: const Icon(Icons.delete_rounded),
+      icon: const Icon(Icons.remove_circle_rounded),
     );
   }
 
